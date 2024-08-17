@@ -9,53 +9,74 @@ An NGO is looking to manage its volunteer activities. They want a system where t
 4. Volunteer-Task Assignments where multiple volunteers can sign up for the same task, and each task can have multiple volunteers.
 ```
 
-## Step 1 - Designing ER Model
+## Step 1 : Initiating the Project
 
-1. Understaing Etities and Relations
+a. Create and activate a virtual environment:
+```bash
+# Navigate to your desired directory
+cd ~/projects
 
-### Entities in Project
+# Create a virtual environment
+python3 -m venv venv
 
-1. Volunteer (id, name, age, email, password)
-2. Projects (proj_id, description, start_date, end_end_date)
-3. Tasks (task_id, proj_id, name, description)
+# Activate the virtual environment
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 
-
-<img src = "notes_assets/Screenshot 2024-08-16 at 8.57.39 AM.png">
-
-## Step 2 - Implimenting Models in Django
-
-
-```python
-class Volunteer(models.Model):
-    id = models.IntegerField(primary_key=True) 
-    name = models.CharField(max_length=50)
-    age = models.IntegerField()
-
-    def __str__(self) -> str:
-        return f"{self.name}"
-
-
-class Project(models.Model):
-    proj_id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=50)
-    description = models.TextField()
-
-    def __str__(self) -> str:
-        return f"{self.name}"
-
-
-class Task(models.Model):
-    task_id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=50)
-    description = models.TextField()
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    volunteers = models.ManyToManyField(Volunteer)
-
-    def __str__(self) -> str:
-        return f"{self.name}"
 ```
 
 
+b. Install Django and necessary packages:
+
+```bash
+# Install Django and Django REST Framework
+pip install django djangorestframework
+
+# Install Simple JWT for JWT token authentication
+pip install djangorestframework-simplejwt
+
+```
+
+c. Create a new Django project:
+
+```bash
+# Create the Django project
+django-admin startproject VolunteerManagement
+
+# Navigate into the project directory
+cd VolunteerManagement
+```
+
+## Step 2 : Add the apps and REST framework to INSTALLED_APPS in settings.py:
+
+- Open VolunteerManagement/settings.py and add the following:
+
+```python
+INSTALLED_APPS = [
+    ...
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'users',
+]
+3. Install and Configure Simple JWT
+In settings.py, configure JWT authentication:
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# Simple JWT Settings (Optional: You can customize these)
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+```
 
 
 

@@ -75,10 +75,15 @@ WSGI_APPLICATION = 'volunteer_management.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mastercard_demo',
+        'USER': 'root',
+        'PASSWORD': 'Amey1234',
+        'HOST': 'localhost',
+        'PORT': '3306'
     }
 }
+
 
 
 # Password validation
