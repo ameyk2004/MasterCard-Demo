@@ -8,7 +8,7 @@ from django.db import models
 
 
 # Volunteer 1 - > 1, 2 , 4
-# Volunteer 1 - > 1, 3 , 4
+# Volunteer 2 - > 1, 3 , 4
 # Task 1, 2 - > proj 1
 # task 3, 4 -> proj 2
 

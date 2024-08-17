@@ -25,6 +25,37 @@ An NGO is looking to manage its volunteer activities. They want a system where t
 ## Step 2 - Implimenting Models in Django
 
 
+```python
+class Volunteer(models.Model):
+    id = models.IntegerField(primary_key=True) 
+    name = models.CharField(max_length=50)
+    age = models.IntegerField()
+
+    def __str__(self) -> str:
+        return f"{self.name}"
+
+
+class Project(models.Model):
+    proj_id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+
+    def __str__(self) -> str:
+        return f"{self.name}"
+
+
+class Task(models.Model):
+    task_id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    volunteers = models.ManyToManyField(Volunteer)
+
+    def __str__(self) -> str:
+        return f"{self.name}"
+```
+
+
 
 
 
