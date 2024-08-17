@@ -57,9 +57,12 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users',
 ]
+```
+
 3. Install and Configure Simple JWT
 In settings.py, configure JWT authentication:
 
+```python
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
