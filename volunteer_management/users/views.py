@@ -30,7 +30,7 @@ class ProjectListCreateView(generics.ListCreateAPIView):
 class TaskListCreateView(generics.ListCreateAPIView):
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
-    permission_classes= [permissions.IsAuthenticatedOrReadOnly, IsAdminOrCoordinator]
+    permission_classes= []
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -39,15 +39,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
 class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
-    permission_classes= [permissions.IsAuthenticatedOrReadOnly, IsTaskOwnerOrAdminOrCoordinator]
-
-    def get_queryset(self):
-        user = self.request.user
-
-        if user.role == 'volunteer':
-            return self.queryset.filter(assigned_to=user)
-        else:
-            return self.queryset.all()
+    permission_classes= [permissions.IsAuthenticatedOrReadOnly]
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
@@ -61,6 +53,30 @@ def register_for_task(request, pk):
         return Response({'detail': 'You have successfully registered for the task.'}, status=status.HTTP_200_OK)
     except Task.DoesNotExist:
         return Response({'detail': 'Task not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+
+
+@api_view(['GET'])
+def get_tasks_for_project(request,pk):
+    try:
+        project = Project.objects.get(id=pk)
+        tasks = Task.objects.filter(project=project)
+        serializer = TaskSerializer(tasks, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Task.DoesNotExist:
+        return Response({'detail': 'Task not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+
+@api_view(['GET'])
+def get_tasks_for_a_volunteer(request):
+    user = request.user
+    if not user.is_authenticated:
+        return Response({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    tasks = Task.objects.filter(assigned_to=user)
+    serializer = TaskSerializer(tasks, many=True)
+    return Response({'data': serializer.data}, status=status.HTTP_200_OK)
 
 
 
