@@ -43,7 +43,10 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        task = task.objects.create(created_by=request.user, **validated_data)
+        created_by = request.user
+        # Ensure 'created_by' is not included in validated_data
+        validated_data.pop('created_by', None)
+        task = Task.objects.create(created_by=created_by, **validated_data)
         return task
 
 
