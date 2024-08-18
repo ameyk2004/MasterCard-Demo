@@ -305,5 +305,158 @@ Expected Response:
 }
 ```
 
+## Step 3: Implement Task Management with Relational Models
+
+Now that user registration and authentication are set up, let's implement the core feature of the application: Task Management. We'll create models for tasks and establish relationships between tasks, users (volunteers, coordinators), and projects.
+
+**1. Define the Models**
+In the users app, create models for Project and Task. These models will establish the relationships between tasks and users.
+
+a. Update models.py in the users app:
+
+```python
+from django.db import models
+from django.conf import settings
+
+class Project(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return self.name
+
+class Task(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    )
+
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    project = models.ForeignKey(Project, related_name='tasks', on_delete=models.CASCADE)
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tasks', on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_tasks', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+```
+
+**2. Make and Apply Migrations**
+After defining the models, create and apply the migrations:
+```bash
+# Create migrations for the new models
+python manage.py makemigrations users
+
+# Apply the migrations to the database
+python manage.py migrate
+```
+
+**3. Create Serializers for Task and Project**
+Create serializers for the Task and Project models in serializers.py to handle data input and output.
+
+a. Add the following in serializers.py:
+
+```python
+from .models import Project, Task
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'name', 'description', 'start_date', 'end_date']
+
+class TaskSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer(read_only=True)
+    assigned_to = UserSerializer(read_only=True)
+    created_by = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'status', 'project', 'assigned_to', 'created_by', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        task = Task.objects.create(created_by=request.user, **validated_data)
+        return task
+
+```
+
+**4. Create Views for Task and Project Management**
+
+In views.py, create views to handle CRUD operations for tasks and projects.
+
+a. Define the views in views.py:
+
+```python
+from rest_framework import generics, permissions
+from .models import Project, Task
+from .serializers import ProjectSerializer, TaskSerializer
+
+class ProjectListCreateView(generics.ListCreateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class TaskListCreateView(generics.ListCreateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'volunteer':
+            return self.queryset.filter(assigned_to=user)
+        elif user.role == 'coordinator' or user.role == 'admin':
+            return self.queryset.all()
+
+```
+
+**5. Create URLs for Task and Project Management**
+
+Add the URLs for the task and project management views in users/urls.py:
+
+```python
+from django.urls import path
+from .views import ProjectListCreateView, TaskListCreateView, TaskDetailView
+
+urlpatterns += [
+    path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),
+    path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
+    path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
+]
+```
+
+
+**6. Test the Task and Project APIs**
+
+Run the Django development server and test the new APIs.
+
+a. Create a New Project:
+Endpoint: POST http://127.0.0.1:8000/api/users/projects/
+
+Payload:
+
+```json
+{
+    "name": "Community Outreach",
+    "description": "Outreach program to connect with local communities.",
+    "start_date": "2024-09-01",
+    "end_date": "2024-12-01"
+}
+```
 
 
