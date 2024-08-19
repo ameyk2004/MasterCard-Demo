@@ -3,7 +3,6 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin, AbstractBaseUser
 
-# Create your models here.
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -23,11 +22,10 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
+            raise ValueError('Superuser must have is_superuser=True')
         
         return self.create_user(email, password, extra_fields)
     
-
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = (
         ('admin', 'Admin'),
@@ -50,8 +48,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-
-
 
 class Project(models.Model):
     name = models.CharField(max_length = 100)
@@ -84,3 +80,6 @@ class Task(models.Model):
      
 
     
+#  Project 1 -  Task 1, Task 2, Task 3
+#  Project 2 -  Task 4, Task 5, Task 6,
+# Project 3 - Task 7, Task 8, Task 9,
