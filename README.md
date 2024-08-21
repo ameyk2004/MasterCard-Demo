@@ -454,4 +454,57 @@ Payload:
 }
 ```
 
+## Cors Permissions
 
+Steps to Enable CORS in Django
+
+1. Install django-cors-headers
+
+This is a Django app that allows you to configure CORS headers easily.
+
+```bash
+pip install django-cors-headers
+```
+
+2. Update settings.py
+
+Add corsheaders to your INSTALLED_APPS and configure middleware and settings for CORS.
+
+```python
+# settings.py
+
+INSTALLED_APPS = [
+    ...
+    'corsheaders',
+    ...
+]
+
+MIDDLEWARE = [
+    ...
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    ...
+]
+
+# Allow all origins (for development only)
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Alternatively, you can specify allowed origins
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+# ]
+
+```
+
+**CORS_ALLOW_ALL_ORIGINS** = True allows requests from any origin. This is suitable for development but should be restricted in production.
+
+CORS_ALLOWED_ORIGINS allows you to specify which origins are permitted. Use this for a more secure configuration.
+
+3. Run Your Django Server
+
+Ensure your Django server is running after making these changes.
+
+```bash
+python manage.py runserver
+```

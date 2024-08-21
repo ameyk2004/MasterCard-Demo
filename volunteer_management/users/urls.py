@@ -13,5 +13,4 @@ urlpatterns = [
     path('projects/', ProjectListCreateView.as_view(), name='project-listcreate'),
     path('project/<int:pk>/tasks/', get_tasks_for_project, name='project-tasks'),
     path('volunteer/tasks', get_tasks_for_a_volunteer, name='volunteer-tasks'),
-
 ]
