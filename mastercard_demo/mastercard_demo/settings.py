@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'services',
     'rest_framework',
-    'ngoapp',
     'rest_framework_simplejwt'
 
 ]
